@@ -1,5 +1,7 @@
 function ds = mwLoadData(fName, dataN, debug)
-% Get data from matlab file saved by mworks
+%mwLoadData: Get data from matlab file saved by mworks
+%
+%  ds = mwLoadData(fName, dataN, debug)
 %
 % histed 110717
 
@@ -11,28 +13,33 @@ if nargin < 3 || isempty(debug); debug = false; end
 ds = load(fName);
 
 %% figure out which chunk to load
-if strcmp(dataN, 'last')
-    ds = ds.input;  % skip backup data
+if debug
+    disp(sprintf('Filename %s', fName));
+end
+
+if isfield(ds, 'backup')
+    ads = {ds.backup{:}, ds.input };
+else
+    ads = {ds.input};
+end
+
+if strcmp(dataN, 'last') 
+    ds = ads{end};  % skip backup data
 elseif isnumeric(dataN)
-    nTrs = cellfun(@(x) length(x.holdStartsMs), ds.backup);
+    nTrs = cellfun(@(x) length(x.holdStartsMs), ads);
     if debug
-        disp('All saved data chunks: nTrials');
-        disp(nTrs)
-    end
-    desIx = nTrs >= 3;
-    nTrs = find(desIx);
-    
-    if dataN == length(nTrs)+1
-        % the last data is stored in this field
-        ds = ds.input;
-    else
-        desN = nTrs(dataN);
-        ds = ds.backup{desN};
+        disp(sprintf('%d saved data chunks: nTrials %s', ...
+                     length(nTrs), mat2str(nTrs)));
     end
     
-    if debug
-        disp(sprintf('Selected chunk has %d trials', length(ds.holdStartsMs)));
-    end
+    desIx = nTrs > 10;
+    desN = find(desIx);
+    
+    ds = ads{desN(dataN)};
 else
     error('invalid dataIndex: %s', mat2str(dataIndex));
+end
+
+if debug
+    disp(sprintf('Selected chunk has %d trials', length(ds.holdStartsMs)));
 end
