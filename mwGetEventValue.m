@@ -11,7 +11,7 @@ function val = mwGetEventValue(events, codec, tag, occurrence, ignoreMissingStr)
 if nargin < 4 || isempty(occurrence), occurrence = 1; end
 if nargin < 5, ignoreMissingStr = []; end
 
-if strcmp(ignoreMissingStr, 'ignoreMissing') 
+if strcmp(lower(ignoreMissingStr), lower('ignoreMissing')) 
   doIgnoreMissing = true;
 else
   doIgnoreMissing = false;
@@ -22,7 +22,6 @@ tCode = codec_tag2code(codec, tag);
 eventNs = find(codes == tCode);
 if length(eventNs) < 1
   if ~doIgnoreMissing
-    ignoreMissingStr
     disp(sprintf('Code not found (in getvalue): %s', tag));
   end
   val = [];
