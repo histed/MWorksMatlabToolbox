@@ -3,7 +3,7 @@ function val = mwGetEventValue(events, codec, tag, occurrence, ignoreMissingStr)
 %
 %  val = mwGetEventValue(events, codec, tag, occurrence, ignoreMissingStr)
 %       occurrence: can be a number or 'all' in which case val is a
-%       vector of values
+%       vector of values, or 'last'
 %
 %  MH 100115: created
 %$Id$
@@ -26,9 +26,16 @@ if length(eventNs) < 1
   end
   val = [];
   return
-elseif ischar(occurrence) && strcmp(occurrence, 'all')
-  val = cat(2,events(eventNs).data);
-  return
+elseif ischar(occurrence) 
+  if strcmpi(occurrence, 'all')
+    val = cat(2,events(eventNs).data);
+    return
+  elseif strcmpi(occurrence, 'last')
+    val = events(eventNs(end)).data;
+    return
+  else
+    error(sprintf('Unknown value for occurrence: %s', occurrence));
+  end    
 else
   val = events(eventNs(occurrence)).data;
   return
