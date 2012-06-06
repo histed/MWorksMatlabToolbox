@@ -8,7 +8,7 @@ function ds = mwLoadData(fName, dataIndex, debug, trialThresholdPerChunk)
 % histed 110717
 
 %% arg processing
-if nargin < 2 || isempty(dataIndex) || isnan(dataIndex), dataIndex = 'last'; end
+if nargin < 2 || isempty(dataIndex) || all(isnan(dataIndex)), dataIndex = 'last'; end
 if nargin < 3 || isempty(debug); debug = false; end
 if nargin < 4 || isempty(trialThresholdPerChunk)
     trialThresholdPerChunk = 25; % prob can go as high as 50
@@ -32,7 +32,7 @@ end
 if strcmp(dataIndex, 'last') 
     ds = ads{end};  % skip backup data
 else
-    nTrs = cellfun(@(x) length(x.holdStartsMs), ads)
+    nTrs = cellfun(@(x) length(x.holdStartsMs), ads);
     
     if debug
         disp(sprintf('%d saved data chunks: nTrials %s', ...
