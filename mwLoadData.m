@@ -1,18 +1,26 @@
-function ds = mwLoadData(fName, dataIndex, debug, trialThresholdPerChunk)
+function [ds, nDataBlocks nSelectedTrials] = mwLoadData(fName, dataIndex, debug)
 %mwLoadData: Get data from matlab file saved by mworks
 %
-%  ds = mwLoadData(fName, dataN, debug, trialThresholdPerChunk)
+%  ds = mwLoadData(fName, dataN, debug)
 %
-%  set trialThresholdPerChunk to zero to choose blocks directly
+%  ds is a struct if one block is returned, a cell vector containing structs if
+%  more than one.
 %
+%  dataN can be 
+%      numeric: return blocks with these indices
+%      'last': return the last block
+%      'max': return block with most trials
+%      'max_N' return the N largest data blocks, keeping them in order
+%      'all': return all
+%  
 % histed 110717
+
+%120607 - removed trialThresholdPerChunk, added new dataN formats and
+%    documented them.
 
 %% arg processing
 if nargin < 2 || isempty(dataIndex) || all(isnan(dataIndex)), dataIndex = 'last'; end
 if nargin < 3 || isempty(debug); debug = false; end
-if nargin < 4 || isempty(trialThresholdPerChunk)
-    trialThresholdPerChunk = 25; % prob can go as high as 50
-end
 
 
 %% get from disk
@@ -29,32 +37,61 @@ else
     ads = {ds.input};
 end
 
-if strcmp(dataIndex, 'last') 
-    ds = ads{end};  % skip backup data
-else
-    nTrs = cellfun(@(x) length(x.holdStartsMs), ads);
+
+
     
-    if debug
-        disp(sprintf('%d saved data chunks: nTrials %s', ...
-                     length(nTrs), mat2str(nTrs)));
-    end
-    
-    if isnumeric(dataIndex)
-        desIx = nTrs > trialThresholdPerChunk;
-        desN = find(desIx);
-    
-        ds = ads{desN(dataIndex)};
-    elseif ischar(dataIndex) && strcmpi(dataIndex, 'max')
-        [maxVal maxN] = max(nTrs);
-        ds = ads{maxN};
-        if debug
-            disp(sprintf('Using max trials: chunk %d, trials %d', maxN, maxVal));
-        end
-    else
-        error('invalid dataIndex: %s', mat2str(dataIndex));
-    end
-end
+nTrs = cellfun(@(x) length(x.holdStartsMs), ads);
+nDataBlocks = length(ads);
 
 if debug
-    disp(sprintf('Selected chunk has %d trials', length(ds.holdStartsMs)));
+    disp(sprintf('%d saved data blocks: nTrials %s', ...
+        nDataBlocks, mat2str(nTrs)));
 end
+
+ds = {};
+if isnumeric(dataIndex)
+    nD = length(dataIndex);
+    for iD = 1:nD
+        ds{iD} = ads{dataIndex(iD)};
+    end
+elseif ischar(dataIndex)
+    [maxMatchSt,~,~,~,toks] = regexpi(dataIndex, 'max_?([0-9]*)');
+    if strcmpi(dataIndex, 'last')
+        ds = ads(end);  
+    elseif strcmpi(dataIndex, 'all')
+        ds = ads;
+    elseif ~isempty(maxMatchSt)
+        [sortVals sortNs] = sort(nTrs);
+        sortVals = fliplr(sortVals);
+        sortNs = fliplr(sortNs);
+
+        % choose max indices
+        tN = str2double(toks{1}{1});
+        if isnan(tN), tN = 1; end  % 'max' case
+        maxNs = 1:tN;
+        desNs = sort(sortNs(maxNs));
+        ds = ads(desNs);
+       
+        if debug
+            disp(sprintf('Using max trials: chunks %s', mat2str(desNs)));
+        end
+    end
+end
+if isempty(ds)
+    error('invalid dataIndex: %s', mat2str(dataIndex));
+end
+
+desTrNs = cellfun(@(x) length(x.trialOutcomeCell), ds);
+if debug
+    disp(sprintf('DataIndex %s: Selected chunk(s): %s trials', ...
+        mat2str(dataIndex), mat2str(desTrNs)));
+end
+
+%% format output
+if nargout >2
+    nSelectedTrials = desTrNs;
+end
+if iscell(ds) && length(ds) == 1
+    ds = ds{1}; % unpack cell
+end 
+
