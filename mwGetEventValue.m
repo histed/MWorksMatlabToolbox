@@ -6,16 +6,24 @@ function val = mwGetEventValue(events, codec, tag, occurrence, ignoreMissingStr)
 %       vector of values, or 'last'
 %
 %  MH 100115: created
-%$Id$
+
 
 if nargin < 4 || isempty(occurrence), occurrence = 1; end
 if nargin < 5, ignoreMissingStr = []; end
 
-if strcmp(lower(ignoreMissingStr), lower('ignoreMissing')) 
-  doIgnoreMissing = true;
+if isempty(ignoreMissingStr)
+  doIgnoreMissing=false;
+elseif isnumeric(ignoreMissingStr) && ignoreMissingStr == 0
+  doIgnoreMissing=false; 
+elseif isnumeric(ignoreMissingStr) && ignoreMissingStr == 1
+  doIgnoreMissing=true; 
+elseif ischar(ignoreMissingStr) && strcmpi(ignoreMissingStr, 'ignoremissing')
+  doIgnoreMissing=true;
 else
-  doIgnoreMissing = false;
+  error('Unknown ignoremissing value: %s', mat2str(ignoreMissingStr));
 end
+
+
 
 codes = [events.event_code];
 tCode = codec_tag2code(codec, tag);
