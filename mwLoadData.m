@@ -24,6 +24,9 @@ if nargin < 3 || isempty(debug); debug = false; end
 
 
 %% get from disk
+if ~exist(fName)
+    error('MW:FileNotFound', 'missing data file %s', fName);
+end
 ds = load(fName);
 
 %% figure out which chunk to load
