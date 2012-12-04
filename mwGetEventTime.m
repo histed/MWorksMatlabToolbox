@@ -35,7 +35,10 @@ else
     datas = [events(eventNs).data];
     dataNs = find(datas == value);
     tN = [];
-    if length(dataNs) == 0
+    if strcmpi(occurrence, 'all')
+      time_us = cat(2,events(eventNs).time_us);
+      return
+    elseif length(dataNs) == 0
       disp(sprintf('Code %s with value %d not found', tag, value));
     elseif length(dataNs) < occurrence
       disp(sprintf('Asked for %d codes %s with value %d, but found %d with this value (%d total)', ...
