@@ -13,10 +13,16 @@ if nargin < 4 || isempty(occurrence), occurrence = 1; end
 if nargin < 5 || isempty(value), value = []; end
 if nargin < 6, ignoreMissingStr = []; end
 
-if strcmp(ignoreMissingStr, 'ignoreMissing') 
-  doIgnoreMissing = true;
+if isempty(ignoreMissingStr)
+  doIgnoreMissing=false;
+elseif isnumeric(ignoreMissingStr) && ignoreMissingStr == 0
+  doIgnoreMissing=false; 
+elseif isnumeric(ignoreMissingStr) && ignoreMissingStr == 1
+  doIgnoreMissing=true; 
+elseif ischar(ignoreMissingStr) && strcmpi(ignoreMissingStr, 'ignoremissing')
+  doIgnoreMissing=true;
 else
-  doIgnoreMissing = false;
+  error('Unknown ignoremissing value: %s', mat2str(ignoreMissingStr));
 end
 
 codes = [events.event_code];
