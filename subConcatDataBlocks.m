@@ -1,4 +1,4 @@
-function outS = subConcatenateDataBlocks(blockC)
+function outS = subConcatDataBlocks(blockC)
 % concatenate data blocks from a file into one
 % not well-debugged but works for some files for now
 % histed 130117: broke out of getBehavDataForDay
@@ -43,8 +43,23 @@ for iF = 1:nF
         end
         outS(1).(tFName) = newC;
     elseif isstruct(tFV1)
-        assert(strcmp(tFName, 'firstTrConsts'));
-        outS(1).(tFName) = blockC{1}.(tFName);
+        switch tFName
+          case 'firstTrConsts'
+            outS(1).(tFName) = blockC{1}.(tFName);
+          case 'background'
+            % skip this field: I think it's a bug
+          case 'announceStimulusTimes'
+            f2Names = fieldnames(blockC{1}.announceStimulusTimes);
+            for iF=1:length(f2Names);
+                tF2Name = f2Names{iF};
+                for iC=1:length(blockC);
+                    tC{iC} = blockC{iC}.announceStimulusTimes.(tF2Name);
+                end
+                outS(1).announceStimulusTimes.(tF2Name) = cat(2,tC{:});
+            end
+          otherwise
+            error('unknown field %s', tFName);
+        end
     else
         error('missing field');
     end
