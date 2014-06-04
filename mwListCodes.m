@@ -30,9 +30,9 @@ nC = length(codeList);
 % construct codecs
 
 
-outH{1} = sprintf('%24s (%3s) %8s  %8s %6s %7s', ...
+outH{1} = sprintf('%32s (%3s) %12s  %9s  %8s  %7s', ...
                   'Code', 'int', 'Value', 'Timestamp', 'Diff', 'Ts from first');
-outH{2} = '-----------------------------------------------------';
+outH{2} = '-------------------------------------------------------------';
 outC = {};
 
 for iC = 1:nC
@@ -50,7 +50,7 @@ for iC = 1:nC
     end
 
     codeName = codec_code2tag(tCodec, tC);
-    outC{iC} = sprintf('%24s (%3d) %8d  %5.2fs   %8s  %7s', ...
+    outC{iC} = sprintf('%32s (%3d) %12d  %9.2fs  %8s  %7s', ...
                        codeName, tC, ...
                        codeVals(iC), ...
                        tTs, tDiffStr, tFromFirstStr);
