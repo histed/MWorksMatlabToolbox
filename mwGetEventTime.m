@@ -57,7 +57,9 @@ else
       dataNs = find(eVals == value);
       valStr = char(value);
       if length(dataNs) == 0
-          disp(sprintf('Code %s with value %s not found', tag, valStr));
+          if ~doIgnoreMissing
+              disp(sprintf('Code %s with value %d not found', tag, value));
+          end
           time_us = [];  
           return
       end
@@ -70,8 +72,10 @@ else
       time_us = eTs(dataNs(end));
       return
   elseif length(dataNs) < occurrence
-      disp(sprintf('Asked for %d codes %s with value %d, but found %d with this value (%d total)', ...
-                   occurrence, tag, value, length(dataNs), length(eventNs)));
+      if ~doIgnoreMissing
+          disp(sprintf('Asked for %d codes %s with value %d, but found %d with this value (%d total)', ...
+                       occurrence, tag, value, length(dataNs), length(eventNs) ));
+      end
       time_us = [];
       return
   else
