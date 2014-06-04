@@ -84,6 +84,7 @@ if isempty(ds)
     error('invalid dataIndex: %s', mat2str(dataIndex));
 end
 
+
 desTrNs = cellfun(@(x) length(x.trialOutcomeCell), ds);
 if debug
     disp(sprintf('DataIndex %s: Selected chunk(s): %s trials', ...
@@ -97,4 +98,14 @@ end
 if iscell(ds) && length(ds) == 1
     ds = ds{1}; % unpack cell
 end 
+
+%% This may be needed in the future, we don't use it now
+% % add a filename to each block
+% if isstruct(ds)
+%     ds.loadFilename = fName;
+% elseif iscell(ds)
+%     for iC = 1:length(ds)
+%         ds{iC}.loadFilename = fName;
+%     end
+% end
 
