@@ -37,8 +37,12 @@ for e = 1:length(data_struct.events)
         end
 
         d = event.data;
-        dStr = num2str(d);
-        %fprintf(fid, '%s', evalc('disp(event)'));
+        if isnumeric(d)
+            dStr = num2str(d);
+        else 
+            % a struct, brute force pretty-print using eval
+            dStr = evalc('disp(d)');
+        end
 	fprintf(fid, sprintf('  %-20s at %8s with data %s', ...
                              data_struct.event_codec(index).tagname, ...
                              eventTimeString, ...
