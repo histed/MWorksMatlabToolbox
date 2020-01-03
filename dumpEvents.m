@@ -2,7 +2,7 @@ function [retval] = dumpEvents(data_struct, input)
 %DUMPEVENTS (MW): log the MW events getting passed to Matlab
 %
 %   [retval] = dumpEvents(data_struct, input)
-%   Dump MonkeyWorks events passed to Matlab to a file
+%   Dump MWorks events passed to Matlab to a file
 %   Currently the file is ~/Desktop/MatlabOutput.txt, which is appended every
 %   time a new set of events is passed to Matlab.  The time of each event is
 %   given in milliseconds.  If an event with the tag 'trialStart' 
@@ -12,20 +12,19 @@ function [retval] = dumpEvents(data_struct, input)
 %
 % maunsell 100101: first ver
 % histed 100115: cleanups and doc
-%
-%$Id$
+
 
 if nargin == 1
 	input.count = 0;
 end
 
-% dump the events passed to Matlab by in one call from MonkeyWorks
+% dump the events passed to Matlab by in one call from MWorks
 
 codes = [data_struct.event_codec(:).code];
 trialStartTimeMS = -1;
 
 fid = fopen('~/Desktop/MatlabOutput.txt', 'a');
-fprintf(fid, sprintf('\nIteration %d, dumping %d MonkeyWorks events:\n', input.count, length(data_struct.events)));
+fprintf(fid, sprintf('\nIteration %d, dumping %d MWorks events:\n', input.count, length(data_struct.events)));
 
 for e = 1:length(data_struct.events)
 	event = data_struct.events(e);
@@ -42,8 +41,9 @@ for e = 1:length(data_struct.events)
         else 
             % a struct, brute force pretty-print using eval
             dStr = evalc('disp(d)');
+	    dStr = strtrim(dStr);
         end
-	fprintf(fid, sprintf('  %-20s at %8s with data %s', ...
+	fprintf(fid, sprintf('  %-40s at %8s with data %s', ...
                              data_struct.event_codec(index).tagname, ...
                              eventTimeString, ...
                              dStr));
@@ -60,4 +60,4 @@ end
 fclose(fid);
 
 retval.count = input.count + 1;
-return;
+
