@@ -54,6 +54,9 @@ end
 ds = {};
 if isnumeric(dataIndex)
     nD = length(dataIndex);
+    if nD > length(ads)
+        error('MWorksMT:dataBlockNotFound', 'Asked for a data block not found in file');
+    end
     for iD = 1:nD
         ds{iD} = ads{dataIndex(iD)};
     end
